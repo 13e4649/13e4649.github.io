@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>成员详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #fff;
+            padding-bottom: 60px;
+        }
+        /* 顶部导航栏 */
+        .top-bar {
+            background-color: #1f2937;
+            color: #fff;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .top-bar .back-btn {
+            font-size: 18px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        .top-bar .title {
+            font-size: 16px;
+            font-weight: 500;
+            flex: 1;
+        }
+        /* 视频区域 */
+        .video-section {
+            width: 100%;
+            height: 200px;
+            background-color: #fff;
+            position: relative;
+        }
+        .video-section video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .play-pause-btn {
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            width: 24px;
+            text-align: center;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-bar .progress {
+            height: 100%;
+            background: #ef233c;
+            border-radius: 2px;
+            width: 0%;
+        }
+        .time-display {
+            color: #fff;
+            font-size: 12px;
+            min-width: 60px;
+            text-align: right;
+        }
+        .replay-btn {
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            width: 24px;
+            text-align: center;
+        }
+        /* 详情联系区域 */
+        .contact-section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .contact-section h2 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        .contact-section .member-name {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .contact-section .tags {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        /* 图文详情区域 */
+        .detail-section {
+            padding: 15px;
+        }
+        .detail-section .section-title {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-item {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .detail-item span {
+            color: #1f2937;
+            font-weight: 500;
+        }
+        .game-info-img {
+            width: 100%;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        /* 底部操作栏 */
+        .footer-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 15px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+        .footer-bar .home-btn {
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .footer-bar .home-btn span {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        .footer-bar .contact-btn {
+            flex: 1;
+            height: 36px;
+            background-color: #ef233c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .footer-bar .collect-btn {
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .collect-btn span {
+            font-size: 20px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="back-btn" onclick="goBack()">←</div>
+        <div class="title">成员详情</div>
+    </div>
+
+    <!-- 视频区域 -->
+    <div class="video-section">
+        <video id="memberVideo" src="" poster="" preload="metadata"></video>
+        <div class="video-controls">
+            <div class="play-pause-btn" onclick="togglePlayPause()">▶</div>
+            <div class="progress-bar" onclick="seekVideo(event)">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="time-display" id="timeDisplay">00:00 / 00:00</div>
+            <div class="replay-btn" onclick="replayVideo()" style="display: none;">↺</div>
+        </div>
+    </div>
+
+    <!-- 详情联系区域 -->
+    <div class="contact-section">
+        <h2>详情联系</h2>
+        <div class="member-name" id="memberName">山清</div>
+        <div class="tags" id="memberTags">【头牌】【古城技术】【双队技术】</div>
+    </div>
+
+    <!-- 图文详情区域 -->
+    <div class="detail-section">
+        <div class="section-title">图文详情</div>
+        <div class="detail-item">接单名: <span id="orderName">山清</span></div>
+        <div class="detail-item">游戏名: <span id="gameName">山清_游戏名</span></div>
+        <div class="detail-item">游戏工号: <span id="gameId">12713229</span></div>
+        <img class="game-info-img" id="gameInfoImg" src="game_info.png" alt="游戏信息">
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="footer-bar">
+        <div class="home-btn" onclick="goHome()">
+            <span>🏠</span>
+            <p>首页</p>
+        </div>
+        <button class="contact-btn">客服</button>
+        <div class="collect-btn" onclick="toggleCollect()">
+            <span>🤍</span>
+        </div>
+    </div>
+
+    <script>
+        // 🚨 核心配置表：所有成员信息都在这里！🚨
+        const memberData = {
+            "☆TQclub_日和飒": {
+                video: "ceshi.mp4",
+                videoPoster: "rihesa_poster.png",
+                tags: "【头牌】【技术流】",
+                gameName: "日和飒_国服狙神",
+                gameId: "970251072",
+                gameInfoImg: "rihesa_game.png"
+            },
+            "☆TQclub_山清": {
+                video: "ceshi.mp4",
+                videoPoster: "shanqing_poster.png",
+                tags: "【头牌】【古城技术】【双队技术】",
+                gameName: "TQclub_山清",
+                gameId: "979629317",
+                gameInfoImg: "shanqing_game.png"
+            },
+            "☆TQclub_赤逼": {
+                video: "ceshi.mp4",
+                videoPoster: "chibi_poster.png",
+                tags: "【暴力】【刚枪王】",
+                gameName: "TQclub_赤逼",
+                gameId: "14401332",
+                gameInfoImg: "chibi_game.png"
+            },
+            "绣春汪、飞刀神燃烬海、挂群不管事": {
+                video: "ceshi.mp4",
+                videoPoster: "xiuchun_poster.png",
+                tags: "【技术流】【全能】",
+                gameName: "绣春汪",
+                gameId: "15759619",
+                gameInfoImg: "xiuchun_game.png"
+            },
+            "☆TQclub_飞机呗": {
+                video: "feijibai_video.mp4",
+                videoPoster: "feijibai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "飞机呗_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "feijibai_game.png"
+            },
+            "TQclub_赤福": {
+                video: "chifu_video.mp4",
+                videoPoster: "chifu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "赤福_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "chifu_game.png"
+            },
+            "TQclub_性压抑": {
+                video: "xingyayi_video.mp4",
+                videoPoster: "xingyayi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "性压抑_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xingyayi_game.png"
+            },
+            "TQclub_抑郁症": {
+                video: "yiyuzheng_video.mp4",
+                videoPoster: "yiyuzheng_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "抑郁症_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "yiyuzheng_game.png"
+            },
+            "TQclub_麻子": {
+                video: "mazi_video.mp4",
+                videoPoster: "mazi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "麻子_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "mazi_game.png"
+            },
+            "夺命、转轮手枪、纯绿、绿谷出久": {
+                video: "duoming_video.mp4",
+                videoPoster: "duoming_poster.jpg",
+                tags: "【暴力】【刚枪王】",
+                gameName: "夺命_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "duoming_game.png"
+            },
+            "TQclub_躯体化": {
+                video: "qutihua_video.mp4",
+                videoPoster: "qutihua_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "躯体化_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "qutihua_game.png"
+            },
+            "TQclub_萧炎": {
+                video: "xiaoyan_video.mp4",
+                videoPoster: "xiaoyan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "萧炎_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xiaoyan_game.png"
+            },
+            "TQclub_禁赛": {
+                video: "jinsai_video.mp4",
+                videoPoster: "jinsai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "禁赛_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jinsai_game.png"
+            },
+            "TQclub_准度": {
+                video: "zhundu_video.mp4",
+                videoPoster: "zhundu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "准度_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zhundu_game.png"
+            },
+            "TQclub_CT": {
+                video: "ct_video.mp4",
+                videoPoster: "ct_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "CT_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ct_game.png"
+            },
+            "TQclub_五月": {
+                video: "wuyue_video.mp4",
+                videoPoster: "wuyue_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "五月_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "wuyue_game.png"
+            },
+            "TQclub_偏见": {
+                video: "pianjian_video.mp4",
+                videoPoster: "pianjian_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "偏见_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "pianjian_game.png"
+            },
+            "TQclub_儿戏、缘分、离别": {
+                video: "erxi_video.mp4",
+                videoPoster: "erxi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "儿戏_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "erxi_game.png"
+            },
+            "TQclub_冰雪": {
+                video: "bingxue_video.mp4",
+                videoPoster: "bingxue_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "冰雪_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "bingxue_game.png"
+            },
+            "TQclub_凌厉": {
+                video: "lingli_video.mp4",
+                videoPoster: "lingli_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "凌厉_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "lingli_game.png"
+            },
+            "TQclub_头牌": {
+                video: "toupai_video.mp4",
+                videoPoster: "toupai_poster.jpg",
+                tags: "【头牌】【技术流】",
+                gameName: "头牌_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "toupai_game.png"
+            },
+            "TQclub_孤儿、同行杯杯": {
+                video: "guer_video.mp4",
+                videoPoster: "guer_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "孤儿_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "guer_game.png"
+            },
+            "TQclub_将离": {
+                video: "jiangli_video.mp4",
+                videoPoster: "jiangli_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "将离_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jiangli_game.png"
+            },
+            "TQclub_小魔王、魔王的猫": {
+                video: "xiaomowang_video.mp4",
+                videoPoster: "xiaomowang_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "小魔王_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xiaomowang_game.png"
+            },
+            "TQclub_帝、零勾、开枪神、枯阅之子": {
+                video: "di_video.mp4",
+                videoPoster: "di_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "帝_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "di_game.png"
+            },
+            "TQclub_常忆": {
+                video: "changyi_video.mp4",
+                videoPoster: "changyi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "常忆_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "changyi_game.png"
+            },
+            "TQclub_开透": {
+                video: "kaitou_video.mp4",
+                videoPoster: "kaitou_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "开透_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "kaitou_game.png"
+            },
+            "TQclub_强锁": {
+                video: "qiangsuo_video.mp4",
+                videoPoster: "qiangsuo_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "强锁_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "qiangsuo_game.png"
+            },
+            "TQclub_愚昧": {
+                video: "yumei_video.mp4",
+                videoPoster: "yumei_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "愚昧_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "yumei_game.png"
+            },
+            "TQclub_执着": {
+                video: "zhizhuo_video.mp4",
+                videoPoster: "zhizhuo_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "执着_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zhizhuo_game.png"
+            },
+            "TQclub_挂嬤、初夜、乱纶": {
+                video: "guama_video.mp4",
+                videoPoster: "guama_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "挂嬤_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "guama_game.png"
+            },
+            "TQclub_挂狗、自瞄、痴汉": {
+                video: "guagou_video.mp4",
+                videoPoster: "guagou_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "挂狗_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "guagou_game.png"
+            },
+            "TQclub_掩谎、掩慌": {
+                video: "yanhuang_video.mp4",
+                videoPoster: "yanhuang_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "掩谎_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "yanhuang_game.png"
+            },
+            "TQclub_極品、冬令时": {
+                video: "jipin_video.mp4",
+                videoPoster: "jipin_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "極品_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jipin_game.png"
+            },
+            "TQclub_没封、校霸": {
+                video: "meifeng_video.mp4",
+                videoPoster: "meifeng_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "没封_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "meifeng_game.png"
+            },
+            "TQclub_燃烬水、枪灵、福瑞、卡密": {
+                video: "ranjinshui_video.mp4",
+                videoPoster: "ranjinshui_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "燃烬水_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ranjinshui_game.png"
+            },
+            "TQclub_狐狸神": {
+                video: "hulichen_video.mp4",
+                videoPoster: "hulichen_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "狐狸神_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "hulichen_game.png"
+            },
+            "TQclub_细菌、玩弄、不吃按头": {
+                video: "xijun_video.mp4",
+                videoPoster: "xijun_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "细菌_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xijun_game.png"
+            },
+            "TQclub_郁性、周杰伦": {
+                video: "yuxing_video.mp4",
+                videoPoster: "yuxing_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "郁性_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "yuxing_game.png"
+            },
+            "TQclub_馒头、万物生": {
+                video: "mantou_video.mp4",
+                videoPoster: "mantou_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "馒头_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "mantou_game.png"
+            },
+            "TQclub_魅纹、炸单、得吃": {
+                video: "meiwen_video.mp4",
+                videoPoster: "meiwen_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "魅纹_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "meiwen_game.png"
+            },
+            "TQclub_鸡蛋仔、凶蛋仔": {
+                video: "jidanzai_video.mp4",
+                videoPoster: "jidanzai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "鸡蛋仔_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jidanzai_game.png"
+            },
+            "TQclub_微开": {
+                video: "weikai_video.mp4",
+                videoPoster: "weikai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "微开_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "weikai_game.png"
+            },
+            "TQclub_纪委": {
+                video: "jiwei_video.mp4",
+                videoPoster: "jiwei_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "纪委_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jiwei_game.png"
+            },
+            "TQclub_好青年": {
+                video: "haoqingnian_video.mp4",
+                videoPoster: "haoqingnian_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "好青年_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "haoqingnian_game.png"
+            },
+            "TQclub_童话": {
+                video: "tonghua_video.mp4",
+                videoPoster: "tonghua_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "童话_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "tonghua_game.png"
+            },
+            "TQclub_顶技": {
+                video: "dingji_video.mp4",
+                videoPoster: "dingji_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "顶技_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "dingji_game.png"
+            },
+            "TQclub_手搓、教父": {
+                video: "shoucuo_video.mp4",
+                videoPoster: "shoucuo_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "手搓_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "shoucuo_game.png"
+            },
+            "TQclub_找妈妈、厕锁、烧烤山空": {
+                video: "zhaomama_video.mp4",
+                videoPoster: "zhaomama_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "找妈妈_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zhaomama_game.png"
+            },
+            "TQclub_逍遥逼、骸少主": {
+                video: "xiaoyaobi_video.mp4",
+                videoPoster: "xiaoyaobi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "逍遥逼_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xiaoyaobi_game.png"
+            },
+            "TQclub_鲁路修、失手": {
+                video: "luluxiu_video.mp4",
+                videoPoster: "luluxiu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "鲁路修_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "luluxiu_game.png"
+            },
+            "TQcIub_杰佣罪状、相处": {
+                video: "jieyong_video.mp4",
+                videoPoster: "jieyong_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "杰佣罪状_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jieyong_game.png"
+            },
+            "TQclub_3077": {
+                video: "3077_video.mp4",
+                videoPoster: "3077_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "3077_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "3077_game.png"
+            },
+            "TQclub_9点、小芹": {
+                video: "9dian_video.mp4",
+                videoPoster: "9dian_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "9点_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "9dian_game.png"
+            },
+            "TQclub_TOP神、原神妞比、束缚": {
+                video: "top_video.mp4",
+                videoPoster: "top_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "TOP神_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "top_game.png"
+            },
+            "TQclub_misa、不当恶人": {
+                video: "misa_video.mp4",
+                videoPoster: "misa_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "misa_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "misa_game.png"
+            },
+            "TQclub_od、改花刀": {
+                video: "od_video.mp4",
+                videoPoster: "od_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "od_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "od_game.png"
+            },
+            "TQclub_上黑": {
+                video: "shanghei_video.mp4",
+                videoPoster: "shanghei_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "上黑_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "shanghei_game.png"
+            },
+            "TQclub_五、原神nb": {
+                video: "wu_video.mp4",
+                videoPoster: "wu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "五_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "wu_game.png"
+            },
+            "TQclub_伪静默、奥丁、鄵碧、燃烬液": {
+                video: "weijingmo_video.mp4",
+                videoPoster: "weijingmo_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "伪静默_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "weijingmo_game.png"
+            },
+            "TQclub_低参": {
+                video: "dican_video.mp4",
+                videoPoster: "dican_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "低参_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "dican_game.png"
+            },
+            "TQclub_佐助": {
+                video: "zuozhu_video.mp4",
+                videoPoster: "zuozhu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "佐助_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zuozhu_game.png"
+            },
+            "TQclub_凶仔、乖仔、法治": {
+                video: "xiongzai_video.mp4",
+                videoPoster: "xiongzai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "凶仔_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xiongzai_game.png"
+            },
+            "TQclub_勘渊、勘讨": {
+                video: "kanyuan_video.mp4",
+                videoPoster: "kanyuan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "勘渊_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "kanyuan_game.png"
+            },
+            "TQclub_参数好拉": {
+                video: "canshu_video.mp4",
+                videoPoster: "canshu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "参数好拉_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "canshu_game.png"
+            },
+            "TQclub_口枪、囚禁": {
+                video: "kouqiang_video.mp4",
+                videoPoster: "kouqiang_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "口枪_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "kouqiang_game.png"
+            },
+            "TQclub_处罚": {
+                video: "chufa_video.mp4",
+                videoPoster: "chufa_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "处罚_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "chufa_game.png"
+            },
+            "TQclub_天蝎": {
+                video: "tianxie_video.mp4",
+                videoPoster: "tianxie_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "天蝎_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "tianxie_game.png"
+            },
+            "TQclub_奶酪、爽偷": {
+                video: "nailao_video.mp4",
+                videoPoster: "nailao_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "奶酪_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "nailao_game.png"
+            },
+            "TQclub_审判": {
+                video: "shenpan_video.mp4",
+                videoPoster: "shenpan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "审判_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "shenpan_game.png"
+            },
+            "TQclub_封号": {
+                video: "fenghao_video.mp4",
+                videoPoster: "fenghao_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "封号_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "fenghao_game.png"
+            },
+            "TQclub_尘埃top、三开、鼠标宏": {
+                video: "chenai_video.mp4",
+                videoPoster: "chenai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "尘埃top_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "chenai_game.png"
+            },
+            "TQclub_怜悯、诺言": {
+                video: "lianmin_video.mp4",
+                videoPoster: "lianmin_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "怜悯_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "lianmin_game.png"
+            },
+            "TQclub_抓挂、枯阅之女": {
+                video: "zhuagua_video.mp4",
+                videoPoster: "zhuagua_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "抓挂_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zhuagua_game.png"
+            },
+            "TQclub_挽留、买伍、仅兰、附狼、沮丧": {
+                video: "wanliu_video.mp4",
+                videoPoster: "wanliu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "挽留_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "wanliu_game.png"
+            },
+            "TQclub_暗号、东京": {
+                video: "anhao_video.mp4",
+                videoPoster: "anhao_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "暗号_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "anhao_game.png"
+            },
+            "TQclub_暗网、白玩、高参、孤寂": {
+                video: "anwang_video.mp4",
+                videoPoster: "anwang_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "暗网_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "anwang_game.png"
+            },
+            "TQclub_最后绿玩、就開、龙玉涛": {
+                video: "zuihou_video.mp4",
+                videoPoster: "zuihou_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "最后绿玩_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zuihou_game.png"
+            },
+            "TQclub_杀戮、寻主": {
+                video: "shalu_video.mp4",
+                videoPoster: "shalu_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "杀戮_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "shalu_game.png"
+            },
+            "TQclub_水彩盒": {
+                video: "shuicaihe_video.mp4",
+                videoPoster: "shuicaihe_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "水彩盒_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "shuicaihe_game.png"
+            },
+            "TQclub_浮力寄": {
+                video: "fuliji_video.mp4",
+                videoPoster: "fuliji_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "浮力寄_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "fuliji_game.png"
+            },
+            "TQclub_然烬水、日挂、KD": {
+                video: "ranjinshui2_video.mp4",
+                videoPoster: "ranjinshui2_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "然烬水_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ranjinshui2_game.png"
+            },
+            "TQclub_燃烬冰、宸宸": {
+                video: "ranjinbing_video.mp4",
+                videoPoster: "ranjinbing_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "燃烬冰_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ranjinbing_game.png"
+            },
+            "TQclub_爱人、调训": {
+                video: "airen_video.mp4",
+                videoPoster: "airen_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "爱人_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "airen_game.png"
+            },
+            "TQclub_爱妻、鹅妈妈": {
+                video: "aiqi_video.mp4",
+                videoPoster: "aiqi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "爱妻_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "aiqi_game.png"
+            },
+            "TQclub_玩家、支配 郑润泽": {
+                video: "wanjia_video.mp4",
+                videoPoster: "wanjia_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "玩家_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "wanjia_game.png"
+            },
+            "TQclub_男神": {
+                video: "nanshen_video.mp4",
+                videoPoster: "nanshen_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "男神_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "nanshen_game.png"
+            },
+            "TQclub_白厄、XL、小瑞": {
+                video: "baie_video.mp4",
+                videoPoster: "baie_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "白厄_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "baie_game.png"
+            },
+            "TQclub_百千夜": {
+                video: "baiqianye_video.mp4",
+                videoPoster: "baiqianye_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "百千夜_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "baiqianye_game.png"
+            },
+            "TQclub_矜持、ciallo、爆裂黎明": {
+                video: "jinchi_video.mp4",
+                videoPoster: "jinchi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "矜持_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jinchi_game.png"
+            },
+            "TQclub_神权、无泪、枪稳、厌挂": {
+                video: "shenquan_video.mp4",
+                videoPoster: "shenquan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "神权_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "shenquan_game.png"
+            },
+            "TQclub_红玩狗、蚂蟥兔、破防": {
+                video: "hongwangou_video.mp4",
+                videoPoster: "hongwangou_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "红玩狗_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "hongwangou_game.png"
+            },
+            "TQclub_约沉、没封就是绿": {
+                video: "yuechen_video.mp4",
+                videoPoster: "yuechen_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "约沉_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "yuechen_game.png"
+            },
+            "TQclub_纯绿忘关、小魔王": {
+                video: "chunlv_video.mp4",
+                videoPoster: "chunlv_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "纯绿忘关_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "chunlv_game.png"
+            },
+            "TQclub_耗子、死馆大号、梧鼠": {
+                video: "haozi_video.mp4",
+                videoPoster: "haozi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "耗子_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "haozi_game.png"
+            },
+            "TQclub_自转、贵族": {
+                video: "zizhuan_video.mp4",
+                videoPoster: "zizhuan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "自转_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zizhuan_game.png"
+            },
+            "TQclub_良心、疼痛、佐药": {
+                video: "liangxin_video.mp4",
+                videoPoster: "liangxin_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "良心_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "liangxin_game.png"
+            },
+            "TQclub_范围、上鸣电气": {
+                video: "fanwei_video.mp4",
+                videoPoster: "fanwei_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "范围_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "fanwei_game.png"
+            },
+            "TQclub_虚降、公爵、神罚、严主": {
+                video: "xujian_video.mp4",
+                videoPoster: "xujian_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "虚降_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xujian_game.png"
+            },
+            "☆TQclub_补单、悲观": {
+                video: "budan_video.mp4",
+                videoPoster: "budan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "补单_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "budan_game.png"
+            },
+            "TQclub_記憶、违规、遗忘": {
+                video: "jiyi_video.mp4",
+                videoPoster: "jiyi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "記憶_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jiyi_game.png"
+            },
+            "TQclub_误封": {
+                video: "wufeng_video.mp4",
+                videoPoster: "wufeng_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "误封_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "wufeng_game.png"
+            },
+            "TQclub_诱饵、纯绿顶飞": {
+                video: "youer_video.mp4",
+                videoPoster: "youer_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "诱饵_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "youer_game.png"
+            },
+            "TQclub_路明非": {
+                video: "lumingfei_video.mp4",
+                videoPoster: "lumingfei_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "路明非_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "lumingfei_game.png"
+            },
+            "TQclub_轰焦冻": {
+                video: "hongjiaodong_video.mp4",
+                videoPoster: "hongjiaodong_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "轰焦冻_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "hongjiaodong_game.png"
+            },
+            "TQclub_轻佻": {
+                video: "qingtiao_video.mp4",
+                videoPoster: "qingtiao_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "轻佻_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "qingtiao_game.png"
+            },
+            "TQclub_辉辉": {
+                video: "huihui_video.mp4",
+                videoPoster: "huihui_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "辉辉_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "huihui_game.png"
+            },
+            "TQclub_追踪、逍嬷": {
+                video: "zhuizong_video.mp4",
+                videoPoster: "zhuizong_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "追踪_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "zhuizong_game.png"
+            },
+            "TQclub_逍遥、夜猫子": {
+                video: "xiaoyao_video.mp4",
+                videoPoster: "xiaoyao_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "逍遥_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "xiaoyao_game.png"
+            },
+            "TQclub_道馆子": {
+                video: "daoguanzi_video.mp4",
+                videoPoster: "daoguanzi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "道馆子_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "daoguanzi_game.png"
+            },
+            "TQclub_阿也大王、零狗、媚暮": {
+                video: "ayedawang_video.mp4",
+                videoPoster: "ayedawang_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "阿也大王_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ayedawang_game.png"
+            },
+            "TQclub_霁川、荒芜": {
+                video: "jichuan_video.mp4",
+                videoPoster: "jichuan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "霁川_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jichuan_game.png"
+            },
+            "TQclub_骨科、伪骨、紫气、零逼": {
+                video: "guke_video.mp4",
+                videoPoster: "guke_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "骨科_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "guke_game.png"
+            },
+            "terrify、TQclub_孙笑川": {
+                video: "sunxiaochuan_video.mp4",
+                videoPoster: "sunxiaochuan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "孙笑川_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "sunxiaochuan_game.png"
+            },
+            "您疼我、TQclub_维什戴尔": {
+                video: "ninhengwo_video.mp4",
+                videoPoster: "ninhengwo_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "维什戴尔_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ninhengwo_game.png"
+            },
+            "愿长夜、TQclub-小愿、愿神": {
+                video: "yuanchangye_video.mp4",
+                videoPoster: "yuanchangye_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "愿神_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "yuanchangye_game.png"
+            },
+            "教学、TQclub_虾卷": {
+                video: "jiaoxue_video.mp4",
+                videoPoster: "jiaoxue_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "虾卷_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jiaoxue_game.png"
+            },
+            "欠么、TQclub_绿陪": {
+                video: "qianme_video.mp4",
+                videoPoster: "qianme_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "绿陪_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "qianme_game.png"
+            },
+            "点单甄选TQclub、TQclub_91、一滴泪、加特林": {
+                video: "diandan_video.mp4",
+                videoPoster: "diandan_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "点单甄选_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "diandan_game.png"
+            },
+            "燃烬海.、TQclub_atox、颗秒": {
+                video: "ranjinhai_video.mp4",
+                videoPoster: "ranjinhai_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "燃烬海_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ranjinhai_game.png"
+            },
+            "软孽、TQclub_白桃": {
+                video: "ruannie_video.mp4",
+                videoPoster: "ruannie_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "白桃_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ruannie_game.png"
+            },
+            "锐气、苦力 、TQclub_讨好": {
+                video: "ruiqi_video.mp4",
+                videoPoster: "ruiqi_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "讨好_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "ruiqi_game.png"
+            },
+            "TQclub_寄吧、挂钩、赵露思": {
+                video: "jiba_video.mp4",
+                videoPoster: "jiba_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "寄吧_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "jiba_game.png"
+            },
+            "TQclub_红": {
+                video: "hong_video.mp4",
+                videoPoster: "hong_poster.jpg",
+                tags: "【优质陪玩】",
+                gameName: "红_游戏名",
+                gameId: "12713229",
+                gameInfoImg: "hong_game.png"
+            }
+        };
+
+        // 获取URL中的成员名字
+        const params = new URLSearchParams(window.location.search);
+        const memberName = decodeURIComponent(params.get('name')) || '山清';
+        const currentMember = memberData[memberName] || {
+            video: "default_video.mp4",
+            videoPoster: "default_poster.jpg",
+            tags: "【TQclub】【优质陪玩】",
+            gameName: memberName + "_游戏名",
+            gameId: "12713229",
+            gameInfoImg: "default_game.png"
+        };
+
+        // 渲染页面信息
+        document.getElementById('memberName').innerText = memberName;
+        document.getElementById('orderName').innerText = memberName;
+        document.getElementById('gameName').innerText = currentMember.gameName;
+        document.getElementById('gameId').innerText = currentMember.gameId;
+        document.getElementById('memberTags').innerText = currentMember.tags;
+        document.getElementById('gameInfoImg').src = currentMember.gameInfoImg;
+        document.getElementById('memberVideo').src = currentMember.video;
+        document.getElementById('memberVideo').poster = currentMember.videoPoster;
+
+        // 视频播放器功能
+        const video = document.getElementById('memberVideo');
+        const playPauseBtn = document.querySelector('.play-pause-btn');
+        const progressBar = document.getElementById('progress');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const replayBtn = document.querySelector('.replay-btn');
+
+        // 初始化视频
+        video.addEventListener('loadedmetadata', () => {
+            updateTimeDisplay();
+        });
+
+        // 播放/暂停切换
+        function togglePlayPause() {
+            if (video.paused) {
+                video.play();
+                playPauseBtn.innerHTML = '⏸';
+                replayBtn.style.display = 'none';
+            } else {
+                video.pause();
+                playPauseBtn.innerHTML = '▶';
+            }
+        }
+
+        // 拖拽进度条
+        function seekVideo(event) {
+            const progressBarRect = event.currentTarget.getBoundingClientRect();
+            const pos = (event.clientX - progressBarRect.left) / progressBarRect.width;
+            video.currentTime = pos * video.duration;
+        }
+
+        // 更新进度条和时间
+        video.addEventListener('timeupdate', () => {
+            const progress = (video.currentTime / video.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            updateTimeDisplay();
+        });
+
+        // 视频结束显示重播按钮
+        video.addEventListener('ended', () => {
+            playPauseBtn.innerHTML = '▶';
+            replayBtn.style.display = 'block';
+        });
+
+        // 重播视频
+        function replayVideo() {
+            video.currentTime = 0;
+            video.play();
+            playPauseBtn.innerHTML = '⏸';
+            replayBtn.style.display = 'none';
+        }
+
+        // 更新时间显示
+        function updateTimeDisplay() {
+            const currentTime = formatTime(video.currentTime);
+            const duration = formatTime(video.duration);
+            timeDisplay.innerHTML = `${currentTime} / ${duration}`;
+        }
+
+        // 格式化时间为MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // 页面按钮功能
+        function goBack() {
+            window.location.href = 'shuangdui.html';
+        }
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+        let isCollected = false;
+        function toggleCollect() {
+            isCollected = !isCollected;
+            const collectIcon = document.querySelector('.collect-btn span');
+            collectIcon.innerHTML = isCollected ? '❤️' : '🤍';
+        }
+    </script>
+</body>
+</html>
