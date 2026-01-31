@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>评价页面 - TOclub俱乐部</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #fff;
+            padding-bottom: 70px;
+        }
+        /* 顶部导航 */
+        .top-bar {
+            background-color: #000;
+            color: #fff;
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        /* 提示条 */
+        .tip-bar {
+            background-color: #2d2d2d;
+            color: #00ccff;
+            padding: 8px 15px;
+            font-size: 12px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        /* 评论输入区域 */
+        .review-input-section {
+            background-color: #1e1e1e;
+            margin: 15px;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .review-input-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .star {
+            font-size: 24px;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .star.active {
+            color: #ffd700;
+        }
+        .review-textarea {
+            width: 100%;
+            height: 120px;
+            background-color: #2d2d2d;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            padding: 12px;
+            font-size: 14px;
+            resize: none;
+            margin-bottom: 12px;
+        }
+        .review-textarea::placeholder {
+            color: #666;
+        }
+        .submit-btn {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, #0099ff, #00ccff);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* 评论列表区域 */
+        .review-list-section {
+            margin: 0 15px;
+        }
+        .review-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .review-list-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .review-count {
+            color: #00ccff;
+            font-size: 14px;
+        }
+        /* 评论项 */
+        .review-item {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .review-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .reviewer-name {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 500;
+        }
+        .review-time {
+            font-size: 11px;
+            color: #666;
+        }
+        .review-item-stars {
+            color: #ffd700;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .review-content {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        /* 空评论提示 */
+        .no-review {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            padding: 30px 0;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        /* 底部导航 */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1f2937;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 11px;
+            text-decoration: none;
+        }
+        .nav-item span {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        .nav-item.active {
+            color: #ef233c;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-bar">TOclub俱乐部 - 评价中心</div>
+
+    <!-- 提示条（声明评论仅自己可见） -->
+    <div class="tip-bar">⚠️ 提示：因无服务器支持，评论仅自己可见，不会被其他用户查看</div>
+
+    <!-- 评论输入区域 -->
+    <div class="review-input-section">
+        <div class="review-input-header">发表你的评价</div>
+        <div class="star-rating">
+            <span class="star" data-star="1">★</span>
+            <span class="star" data-star="2">★</span>
+            <span class="star" data-star="3">★</span>
+            <span class="star" data-star="4">★</span>
+            <span class="star" data-star="5">★</span>
+        </div>
+        <textarea class="review-textarea" placeholder="请描述你的服务体验..."></textarea>
+        <button class="submit-btn" id="submitReviewBtn">提交评价</button>
+    </div>
+
+    <!-- 评论列表区域 -->
+    <div class="review-list-section">
+        <div class="review-list-header">
+            <div class="review-list-title">我的评价</div>
+            <div class="review-count" id="reviewCount">0 条评价</div>
+        </div>
+        <div id="reviewList" class="review-list">
+            <!-- 空评论提示 -->
+            <div class="no-review" id="noReviewTip">暂无评价，快来发表你的第一条评价吧～</div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="footer-nav">
+        <a href="index.html" class="nav-item">
+            <span>🏠</span>
+            <p>首页</p>
+        </a>
+        <a href="order.html" class="nav-item">
+            <span>🛒</span>
+            <p>点单区</p>
+        </a>
+        <a href="pinglun.html" class="nav-item active">
+            <span>⭐</span>
+            <p>评价</p>
+        </a>
+    </div>
+
+    <script>
+        // 获取元素
+        const stars = document.querySelectorAll('.star');
+        const reviewTextarea = document.querySelector('.review-textarea');
+        const submitReviewBtn = document.getElementById('submitReviewBtn');
+        const reviewList = document.getElementById('reviewList');
+        const noReviewTip = document.getElementById('noReviewTip');
+        const reviewCount = document.getElementById('reviewCount');
+
+        let selectedStar = 0; // 选中的星级
+        let reviews = JSON.parse(localStorage.getItem('toClubReviews')) || []; // 从本地存储读取评论
+
+        // 初始化页面
+        initPage();
+
+        // 星级选择
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedStar = parseInt(star.dataset.star);
+                // 更新星级样式
+                stars.forEach(s => {
+                    const sStar = parseInt(s.dataset.star);
+                    s.classList.toggle('active', sStar <= selectedStar);
+                });
+            });
+        });
+
+        // 提交评论
+        submitReviewBtn.addEventListener('click', () => {
+            if (selectedStar === 0) {
+                alert('请选择评价星级～');
+                return;
+            }
+            const content = reviewTextarea.value.trim();
+            if (!content) {
+                alert('请输入评价内容～');
+                return;
+            }
+
+            // 构建评论数据
+            const newReview = {
+                id: Date.now(), // 用时间戳作为唯一ID
+                star: selectedStar,
+                content: content,
+                time: formatTime(new Date())
+            };
+
+            // 添加到评论列表并保存到本地存储
+            reviews.unshift(newReview); // 新增评论放在最前面
+            localStorage.setItem('toClubReviews', JSON.stringify(reviews));
+
+            // 重置输入
+            selectedStar = 0;
+            stars.forEach(s => s.classList.remove('active'));
+            reviewTextarea.value = '';
+
+            // 刷新页面
+            initPage();
+        });
+
+        // 初始化页面（加载评论）
+        function initPage() {
+            // 更新评论数量
+            reviewCount.textContent = `${reviews.length} 条评价`;
+
+            // 隐藏/显示空评论提示
+            noReviewTip.style.display = reviews.length === 0 ? 'block' : 'none';
+
+            // 渲染评论列表
+            reviewList.innerHTML = '';
+            reviews.forEach(review => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item';
+                
+                // 构建星级HTML
+                let starHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    starHtml += i <= review.star ? '★' : '★';
+                }
+
+                reviewItem.innerHTML = `
+                    <div class="review-item-header">
+                        <div class="reviewer-name">我</div>
+                        <div class="review-time">${review.time}</div>
+                    </div>
+                    <div class="review-item-stars">${starHtml}</div>
+                    <div class="review-content">${review.content}</div>
+                `;
+                reviewList.appendChild(reviewItem);
+            });
+        }
+
+        // 格式化时间
+        function formatTime(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}`;
+        }
+    </script>
+</body>
+</html>
